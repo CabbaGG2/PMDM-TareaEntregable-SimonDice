@@ -7,21 +7,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * Clase para almacenar los datos del juego
  */
 object Datos {
+    enum class Colores (val color: Color, val txt: String){
+        CLASE_ROJO(color = Color.Companion.Red, txt = ""),
+        CLASE_VERDE(color = Color.Companion.Green, txt = ""),
+        CLASE_AZUL(color = Color.Companion.Blue, txt = ""),
+        CLASE_AMARILLO(color = Color.Companion.Yellow, txt = "")
+
+    }
     var numero = 0
     val victorias = MutableStateFlow(0)
     var derrotas = MutableStateFlow(0)
+
 }
+
 
 /**
  * Colores utilizados
  */
-enum class Colores(val color: Color, val txt: String) {
-    CLASE_ROJO(color = Color.Red, txt = "roxo"),
-    CLASE_VERDE(color = Color.Green, txt = "verde"),
-    CLASE_AZUL(color = Color.Blue, txt = "azul"),
-    CLASE_AMARILLO(color = Color.Yellow, txt = "melo"),
-    CLASE_START(color = Color.Magenta, txt = "Start")
-}
+
+
 
 /**
  * Estados del juego
