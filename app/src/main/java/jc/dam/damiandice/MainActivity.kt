@@ -12,13 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import jc.dam.damiandice.ui.theme.DamianDiceTheme
+import android.provider.Contacts.Intents.UI
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Inicializamos el ViewModel
+        val miViewModel: MyViewModel = MyViewModel()
+
         enableEdgeToEdge()
         setContent {
-            IU()
+            IU(miViewModel)
         }
     }
 }
@@ -26,5 +30,6 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun FunPreview() {
-    IU()
+    val miViewModel: MyViewModel = MyViewModel()
+    IU(miViewModel)
 }

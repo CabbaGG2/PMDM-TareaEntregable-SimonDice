@@ -1,13 +1,18 @@
 package jc.dam.damiandice
 
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,16 +22,25 @@ import androidx.compose.ui.unit.sp
 import kotlin.collections.get
 import androidx.compose.material3.Text
 import androidx.compose.runtime.ComposableOpenTarget
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.delay
 
 @Composable
-fun IU() {
+fun IU(miViewModel: MyViewModel) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
     ) {
         Text(
             text = "RECORD: ",
@@ -35,67 +49,110 @@ fun IU() {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        Botones(onColorClick = { color -> Log.d("Juego", "¡Has pulsado: ${color.txt}!") })
+        Column {
+            Row {
+               //creamos el boton rojo
+                Boton(miViewModel, Colores.CLASE_ROJO)
+
+                //creamos el boton verde
+                Boton(miViewModel, Colores.CLASE_VERDE)
+            }
+            Row {
+                //creamos el boton azul
+                Boton(miViewModel, Colores.CLASE_AZUL)
+
+                //creamos el boton amarillo
+                Boton(miViewModel, Colores.CLASE_AMARILLO)
+            }
+        }
+        //Aqui colocamos el boton Start
+        Boton_Start(miViewModel, Colores.CLASE_START)
     }
 }
 
+
     @Composable
-    fun Botones(onColorClick: (Datos.Colores) -> Unit) {
-        Column(
-            modifier = Modifier.Companion
-                .size(320.dp, 320.dp)
+    fun Boton(miViewModel: MyViewModel, enum_color: Colores) {
+
+        //para buscar la etiqueta log mas facil
+        val TAG_LOG = "miDebug"
+
+        //variable para rastrear el estado del boton
+        var _activo by remember { mutableStateOf(miViewModel.estadoLiveData.value!!.boton_activo) }
+
+        miViewModel.estadoLiveData.observe(LocalLifecycleOwner.current) {
+            // Log.d(TAG_LOG, "Observer Estado: ${miViewModel.estadoLiveData.value!!.name}")
+            _activo = miViewModel.estadoLiveData.value!!.boton_activo
+        }
+
+        //Separador entre los botones
+        Spacer(modifier = Modifier.size(10.dp))
+
+        Button(
+            enabled = _activo,
+            shape = RectangleShape,
+
+            colors = ButtonDefaults.buttonColors(containerColor = enum_color.color),
+            onClick = {
+                Log.d(TAG_LOG, "Dentro del boton: ${enum_color.ordinal}")
+                miViewModel.comprobar(enum_color.ordinal)
+            },
+
+            modifier = Modifier
+                .size(120.dp,120.dp)
+                .padding(all = 8.dp)
         ) {
-            val colores = Datos.Colores.entries
-
-            Row(modifier = Modifier.Companion.weight(1f)) {
-                // VERDE (Índice 0)
-                Boton(
-                    enum_color = colores[0],
-                    onClickAction = { onColorClick(colores[0]) },
-                    modifier = Modifier.Companion.weight(1f)
-                )
-                // ROJO (Índice 1)
-                Boton(
-                    enum_color = colores[1],
-                    onClickAction = { onColorClick(colores[1]) },
-                    modifier = Modifier.Companion.weight(1f)
-                )
-            }
-
-            Row(modifier = Modifier.Companion.weight(1f)) {
-                // AMARILLO (Índice 2)
-                Boton(
-                    enum_color = colores[2],
-                    onClickAction = { onColorClick(colores[2]) },
-                    modifier = Modifier.Companion.weight(1f)
-                )
-                // AZUL (Índice 3)
-                Boton(
-                    enum_color = colores[3],
-                    onClickAction = { onColorClick(colores[3]) },
-                    modifier = Modifier.Companion.weight(1f)
-                )
-            }
+            Text(text = "")
         }
     }
 
     @Composable
-    fun Boton(
-        enum_color: Datos.Colores,
-        modifier: Modifier = Modifier.Companion,
-        onClickAction: () -> Unit
-    ) {
+    fun Boton_Start(miViewModel: MyViewModel, enum_color: Colores){
+
+        //Etiqueta facil de log
+        val TAG_LOG = "miDebug"
+
+        //Variable para el estado del boton
+        var _activo by remember { mutableStateOf(miViewModel.estadoLiveData.value!!.start_activo) }
+
+        //variable para el color utilizado en el LaunchedEffect
+        var _color by remember { mutableStateOf(enum_color.color) }
+
+        miViewModel.estadoLiveData.observe(LocalLifecycleOwner.current) {
+            // Log.d(TAG_LOG, "Observer Estado: ${miViewModel.estadoLiveData.value!!.name}")
+            _activo = miViewModel.estadoLiveData.value!!.start_activo
+        }
+
+        // cremos el efecto de parpadear con Launchedffect
+        // mientras el estado es INICIO el boton start parpadea
+        // si cambia _activo, el LaunchedEffect se inicia o se para
+
+        LaunchedEffect(_activo) {
+            Log.d(TAG_LOG, "LaunchedEffect - Estado: ${_activo}")
+            //solo entra aqui si el boton esta activo = true
+            while(_activo){
+                _color = enum_color.color_suave
+                delay(100)
+                _color = enum_color.color
+                delay(500)
+            }
+        }
+
+        //separador entre botones
+        Spacer(modifier = Modifier.size(40.dp))
         Button(
-            shape = RectangleShape,
-
-            colors = ButtonDefaults.buttonColors(containerColor = enum_color.color),
-            onClick = onClickAction,
-
-            modifier = modifier
-                .fillMaxSize()
-                .padding(all = 8.dp)
+            enabled = _activo,
+            //utilizamos el color del enum
+            colors = ButtonDefaults.buttonColors(_color),
+            onClick = {
+                Log.d(TAG_LOG, "Dentro del Start - Estado: ${miViewModel.estadoLiveData.value!!.name}")
+                miViewModel.crearRandom()
+            },
+            modifier = Modifier
+                .size(100.dp,40.dp)
         ) {
-            Text(text = enum_color.txt, fontSize = 20.sp)
+            //Utilizamos el texto del enum_color
+            Text(text = enum_color.txt, fontSize = 10.sp)
         }
     }
 
@@ -103,5 +160,5 @@ fun IU() {
 @Preview(showBackground = true)
 @Composable
 fun IUPreview(){
-    IU()
+    IU(MyViewModel())
 }
