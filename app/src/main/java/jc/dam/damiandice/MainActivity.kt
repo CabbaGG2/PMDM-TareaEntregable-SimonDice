@@ -31,5 +31,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun FunPreview() {
     val miViewModel: MyViewModel = MyViewModel()
+    //comentario
     IU(miViewModel)
 }
