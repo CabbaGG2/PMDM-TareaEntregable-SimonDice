@@ -15,7 +15,7 @@ class MyViewModel(): ViewModel() {
     // estados del juego
     // usamos LiveData para que la IU se actualice
     // patron de diseño observer
-    val estadoLiveData: MutableLiveData<Estados> = MutableLiveData(Estados.INICIO)
+    var estadoLiveData: MutableLiveData<Estados> = MutableLiveData(Estados.INICIO)
 
     // este va a ser nuestra lista para la secuencia random
     // usamos mutable, ya que la queremos modificar
@@ -34,18 +34,19 @@ class MyViewModel(): ViewModel() {
      */
     fun crearRandom() {
         // cambiamos estado, por lo tanto la IU se actualiza
-        estadoLiveData.value = Estados.GENERANDO
+        estadoLiveData.value = Estados.ESPERANDO
         _numbers.value = (0..3).random()
         Log.d(TAG_LOG, "creamos random ${_numbers.value} - Estado: ${estadoLiveData.value}")
-        actualizarNumero(_numbers.value)
+        actualizarSecuencia(_numbers.value)
     }
 
-    fun actualizarNumero(numero: Int) {
-        Log.d(TAG_LOG, "actualizamos numero en Datos - Estado: ${estadoLiveData.value}")
-        Datos.numero = numero
+    fun actualizarSecuencia(numero: Int) {
+        Log.d(TAG_LOG, "vamos actualizando la secuencia numero en Datos - Estado: ${estadoLiveData.value}")
+        Datos.secuenciaMaquina.add(numero)
         // cambiamos estado, por lo tanto la IU se actualiza
-        estadoLiveData.value = Estados.ADIVINANDO
+        estadoLiveData.value = Estados.GENERANDO
     }
+
 
     /**
      * comprobar si el boton pulsado es el correcto
@@ -55,7 +56,7 @@ class MyViewModel(): ViewModel() {
     fun comprobar(ordinal: Int): Boolean {
 
         Log.d(TAG_LOG, "comprobamos - Estado: ${estadoLiveData.value}")
-        return if (ordinal == Datos.numero) {
+        return if (ordinal == Datos.secuenciaMaquina) {
             Log.d(TAG_LOG, "es correcto")
             Datos.victorias.value += 1
             estadoLiveData.value = Estados.INICIO
@@ -81,4 +82,6 @@ class MyViewModel(): ViewModel() {
         Log.d(TAG_LOG, "Reiniciando el juego.")
         estadoLiveData.value = Estados.INICIO
     }
+
+
 }

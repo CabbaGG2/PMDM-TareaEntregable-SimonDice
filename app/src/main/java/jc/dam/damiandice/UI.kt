@@ -1,5 +1,6 @@
 package jc.dam.damiandice
 
+import android.R
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.collectAsState
-
+import kotlinx.coroutines.launch
+import android.provider.CalendarContract.Colors
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import android.graphics.Color
 
 @Composable
 fun IU(miViewModel: MyViewModel) {
@@ -50,12 +55,97 @@ fun IU(miViewModel: MyViewModel) {
         }
     }
 }
+
+@Composable
+fun Boton(miViewModel: MyViewModel, enum_color: Colores, colorBoton: Color = enum_color.color)  {
+
+    //para buscar la etiqueta log mas facil
+    val TAG_LOG = "miDebug"
+
+    //variable para rastrear el estado del boton
+    var _activo by remember { mutableStateOf(miViewModel.estadoLiveData.value!!.boton_activo) }
+
+    miViewModel.estadoLiveData.observe(LocalLifecycleOwner.current) {
+        // Log.d(TAG_LOG, "Observer Estado: ${miViewModel.estadoLiveData.value!!.name}")
+        _activo = miViewModel.estadoLiveData.value!!.boton_activo
+    }
+
+    //Separador entre los botones
+    Spacer(modifier = Modifier.size(10.dp))
+
+    Button(
+        enabled = _activo,
+        shape = RectangleShape,
+
+        colors = ButtonDefaults.buttonColors(containerColor = colorBoton),
+        onClick = {
+            Log.d(TAG_LOG, "Dentro del boton: ${enum_color.id}")
+            miViewModel.comprobar(enum_color.ordinal)
+        },
+
+        modifier = Modifier
+            .size(120.dp,120.dp)
+            .padding(all = 8.dp)
+    ) {
+        Text(text = "")
+    }
+}
+
 @Composable
 fun JuegoScreen(miViewModel: MyViewModel) {
 // Observamos las victorias para la ronda actual
     val victorias by Datos.victorias.collectAsState()
     // Observamos el record guardado
     val rondasSuperadas by Datos.rondasSuperadas.collectAsState()
+
+    //guardamos los botones en variables que observamos constantemente
+    val context = LocalContext.current
+    val redButtonColor = remember { mutableStateOf(Colores.CLASE_ROJO.color) }
+    val blueButtonColor = remember { mutableStateOf(Colores.CLASE_AZUL.color) }
+    val greenButtonColor = remember { mutableStateOf(Colores.CLASE_VERDE.color) }
+    val yellowButtonColor = remember { mutableStateOf(Colores.CLASE_AMARILLO.color) }
+    val coroutineScope = rememberCoroutineScope()
+    var _colorear by remember { mutableStateOf(miViewModel.estadoLiveData.value!!.colorearSecuencia) }
+
+    suspend fun colorearSecuencia (){
+        Datos.isPrinted.value = true
+        for (i in Datos.secuenciaMaquina){
+            delay(300)
+            when(i){
+                Colores.CLASE_ROJO.id -> {
+                    redButtonColor.value = Colores.CLASE_ROJO.color_suave
+                    delay(1000)
+                    redButtonColor.value = Colores.CLASE_ROJO.color
+                }
+                Colores.CLASE_AZUL.id -> {
+                    blueButtonColor.value = Colores.CLASE_AZUL.color_suave
+                    delay(1000)
+                    blueButtonColor.value = Colores.CLASE_AZUL.color
+                }
+                Colores.CLASE_VERDE.id -> {
+                    greenButtonColor.value = Colores.CLASE_VERDE.color_suave
+                    delay(1000)
+                    greenButtonColor.value = Colores.CLASE_VERDE.color
+                }
+                Colores.CLASE_AMARILLO.id -> {
+                    yellowButtonColor.value = Colores.CLASE_AMARILLO.color_suave
+                    delay(1000)
+                    yellowButtonColor.value = Colores.CLASE_AMARILLO.color
+                }
+            }
+        }
+        miViewModel.estadoLiveData.value = Estados.ADIVINANDO
+    }
+
+    miViewModel.estadoLiveData.observe(LocalLifecycleOwner.current) {
+        _colorear = miViewModel.estadoLiveData.value!!.colorearSecuencia
+        if (_colorear && !Datos.isPrinted.value){
+            coroutineScope.launch {
+                colorearSecuencia()
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -71,17 +161,17 @@ fun JuegoScreen(miViewModel: MyViewModel) {
         Column {
             Row {
                //creamos el boton rojo
-                Boton(miViewModel, Colores.CLASE_ROJO)
+                Boton(miViewModel, Colores.CLASE_ROJO, redButtonColor.value)
 
                 //creamos el boton verde
-                Boton(miViewModel, Colores.CLASE_VERDE)
+                Boton(miViewModel, Colores.CLASE_VERDE, greenButtonColor.value)
             }
             Row {
                 //creamos el boton azul
-                Boton(miViewModel, Colores.CLASE_AZUL)
+                Boton(miViewModel, Colores.CLASE_AZUL, blueButtonColor.value)
 
                 //creamos el boton amarillo
-                Boton(miViewModel, Colores.CLASE_AMARILLO)
+                Boton(miViewModel, Colores.CLASE_AMARILLO, yellowButtonColor.value)
             }
         }
         //Aqui colocamos el boton Start
@@ -133,41 +223,6 @@ fun GameOverScreen(miViewModel: MyViewModel) {
 }
 
     @Composable
-    fun Boton(miViewModel: MyViewModel, enum_color: Colores) {
-
-        //para buscar la etiqueta log mas facil
-        val TAG_LOG = "miDebug"
-
-        //variable para rastrear el estado del boton
-        var _activo by remember { mutableStateOf(miViewModel.estadoLiveData.value!!.boton_activo) }
-
-        miViewModel.estadoLiveData.observe(LocalLifecycleOwner.current) {
-            // Log.d(TAG_LOG, "Observer Estado: ${miViewModel.estadoLiveData.value!!.name}")
-            _activo = miViewModel.estadoLiveData.value!!.boton_activo
-        }
-
-        //Separador entre los botones
-        Spacer(modifier = Modifier.size(10.dp))
-
-        Button(
-            enabled = _activo,
-            shape = RectangleShape,
-
-            colors = ButtonDefaults.buttonColors(containerColor = enum_color.color),
-            onClick = {
-                Log.d(TAG_LOG, "Dentro del boton: ${enum_color.ordinal}")
-                miViewModel.comprobar(enum_color.ordinal)
-            },
-
-            modifier = Modifier
-                .size(120.dp,120.dp)
-                .padding(all = 8.dp)
-        ) {
-            Text(text = "")
-        }
-    }
-
-    @Composable
     fun Boton_Start(miViewModel: MyViewModel, enum_color: Colores){
 
         //Etiqueta facil de log
@@ -216,7 +271,6 @@ fun GameOverScreen(miViewModel: MyViewModel) {
             Text(text = enum_color.txt, fontSize = 10.sp)
         }
     }
-
 
 
 @Preview(showBackground = true)
