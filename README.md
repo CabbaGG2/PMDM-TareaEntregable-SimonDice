@@ -89,6 +89,43 @@ Es el punto de entrada de la aplicación Android. Se encarga de inicializar el e
 
 </details>
 
+---
+Decisiones clave de diseño
+---
+
+A continuación, se justifican las principales decisiones arquitectónicas y tecnológicas adoptadas:
+
+<details><summary><h3>Gestión del Estado del Juego</h3></summary> 
+
+**Decisión:** Uso del enum class Estados en conjunto con LiveData en el ViewModel para representar una Máquina de Estados Finitos (FSM).
+
+**Justificación:** Garantiza que el juego se encuentre siempre en un estado válido y predecible (INICIO, GENERANDO, ADIVINANDO, ERROR). La interfaz solo puede reaccionar a las transiciones definidas, evitando comportamientos inconsistentes (por ejemplo, impidiendo la entrada del usuario durante la fase GENERANDO).
+
+</details>
+
+
+<details><summary><h3>Uso de Jetpack Compose</h3></summary> 
+
+**Decisión:** Interfaz de usuario declarativa implementada completamente con Jetpack Compose.
+
+**Justificación:** Permite un desarrollo de UI más rápido y reactivo. La interfaz (UI.kt) se reconstruye automáticamente solo en los componentes afectados cuando el estado de los datos (observados vía LiveData o StateFlow) cambia, optimizando el rendimiento.
+
+</details>
+
+<details><summary><h3>Persistencia de Datos Reactiva</h3></summary> 
+
+**Decisión:** Utilización de MutableStateFlow (en Datos.kt) para variables críticas como victorias y rondasSuperadas.
+
+**Justificación:** Aunque se usa LiveData para el estado principal, StateFlow ofrece una manera eficiente y asíncrona de exponer flujos de datos a la UI. Esto permite que los composables (como el texto de la puntuación) se actualicen de forma reactiva y con mayor rendimiento.
+
+</details>
+
+<details><summary><h3>Componentes Reutilizables</h3></summary>
+
+**Decisión:** Creación de funciones @Composable específicas como Boton y Boton_Start.
+
+**Justificación:** Mejora la modularidad y reduce la duplicación de código. El componente Boton_Start incluye un LaunchedEffect para gestionar la animación de parpadeo de forma controlada y eficiente (solo se activa en el estado INICIO), separando la lógica visual de la lógica del juego.
+</details>
 
 
 
