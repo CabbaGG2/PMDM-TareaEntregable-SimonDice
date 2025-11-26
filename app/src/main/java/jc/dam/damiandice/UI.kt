@@ -34,9 +34,21 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.delay
+// Importar flowAsState para observar el puntaje
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.LiveData
 
 @Composable
 fun IU(miViewModel: MyViewModel) {
+    //Obtenemos estado actual del juego
+
+    val estado by miViewModel.estadoLiveData.observeAsState(initial = Estados.INICIO)
+
+
     Column(
         modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +82,53 @@ fun IU(miViewModel: MyViewModel) {
     }
 }
 
+@Composable
+fun GameOverScreen(miViewModel: MyViewModel) {
+    // Observamos el puntaje final
+    val puntaje by Datos.rondasSuperadas.collectAsState()
 
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "¡FALLO!",
+            fontSize = 48.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = Colores.CLASE_ROJO.color
+        )
+        Spacer(modifier = Modifier.size(32.dp))
+
+        Text(
+            text = "Rondas Superadas:",
+            fontSize = 28.sp
+        )
+
+        Text(
+            text = "$puntaje",
+            fontSize = 64.sp,
+            fontWeight = FontWeight.Black
+        )
+        Spacer(modifier = Modifier.size(48.dp))
+
+        Button(
+            onClick = {
+                // Llama a la función del ViewModel para volver a INICIO
+                miViewModel.reiniciarJuego()
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Colores.CLASE_VERDE.color),
+            modifier = Modifier.size(200.dp, 60.dp)
+        ) {
+            Text(text = "Volver a Empezar", fontSize = 16.sp)
+        }
+    }
+}
+@Composable
+fun <T> LiveData<T>.observeAsState(initial: T): androidx.compose.runtime.State<T> {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    return androidx.lifecycle.compose.observeAsState(initial = initial, lifecycleOwner = lifecycleOwner)
+}
     @Composable
     fun Boton(miViewModel: MyViewModel, enum_color: Colores) {
 
@@ -132,9 +190,9 @@ fun IU(miViewModel: MyViewModel) {
             //solo entra aqui si el boton esta activo = true
             while(_activo){
                 _color = enum_color.color_suave
-                delay(100)
+                delay(675)
                 _color = enum_color.color
-                delay(500)
+                delay(370)
             }
         }
 
@@ -155,6 +213,7 @@ fun IU(miViewModel: MyViewModel) {
             Text(text = enum_color.txt, fontSize = 10.sp)
         }
     }
+
 
 
 @Preview(showBackground = true)
