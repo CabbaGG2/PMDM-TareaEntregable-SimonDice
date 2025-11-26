@@ -40,7 +40,7 @@ enum class Colores (val id: Int, val color: Color, val color_suave: Color = Colo
 enum class Estados(val start_activo: Boolean, val boton_activo: Boolean, val colorearSecuencia: Boolean) {
     INICIO(start_activo = true, boton_activo = false, colorearSecuencia = false),
     ESPERANDO(start_activo = false, boton_activo = false, colorearSecuencia = false),
-    GENERANDO(start_activo = false, boton_activo = false, colorearSecuencia = true),
+    GENERANDO(start_activo = false, boton_activo = true, colorearSecuencia = true),
     ADIVINANDO(start_activo = false, boton_activo = true, colorearSecuencia = false),
 
     RECORD(start_activo = false, boton_activo = true, colorearSecuencia = false),

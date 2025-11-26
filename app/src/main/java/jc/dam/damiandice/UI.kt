@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import android.provider.CalendarContract.Colors
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.rememberCoroutineScope
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun IU(miViewModel: MyViewModel) {
@@ -53,6 +53,8 @@ fun IU(miViewModel: MyViewModel) {
         Estados.ERROR -> {
             GameOverScreen(miViewModel = miViewModel)
         }
+
+        else -> {}
     }
 }
 
@@ -77,10 +79,10 @@ fun Boton(miViewModel: MyViewModel, enum_color: Colores, colorBoton: Color = enu
         enabled = _activo,
         shape = RectangleShape,
 
-        colors = ButtonDefaults.buttonColors(containerColor = colorBoton),
+        colors = ButtonDefaults.buttonColors(colorBoton),
         onClick = {
             Log.d(TAG_LOG, "Dentro del boton: ${enum_color.id}")
-            miViewModel.comprobar(enum_color.ordinal)
+            miViewModel.comprobar(enum_color.id)
         },
 
         modifier = Modifier

@@ -34,16 +34,16 @@ class MyViewModel(): ViewModel() {
      */
     fun crearRandom() {
         // cambiamos estado, por lo tanto la IU se actualiza
+
+        Datos.secuenciaJugador.clear()
+        Datos.isPrinted.value = false
+
         estadoLiveData.value = Estados.ESPERANDO
         _numbers.value = (0..3).random()
+        Datos.secuenciaMaquina.add(_numbers.value)
         Log.d(TAG_LOG, "creamos random ${_numbers.value} - Estado: ${estadoLiveData.value}")
-        actualizarSecuencia(_numbers.value)
-    }
+        Log.d(TAG_LOG, "Nueva secuencia: ${Datos.secuenciaMaquina}")
 
-    fun actualizarSecuencia(numero: Int) {
-        Log.d(TAG_LOG, "vamos actualizando la secuencia numero en Datos - Estado: ${estadoLiveData.value}")
-        Datos.secuenciaMaquina.add(numero)
-        // cambiamos estado, por lo tanto la IU se actualiza
         estadoLiveData.value = Estados.GENERANDO
     }
 
@@ -53,33 +53,43 @@ class MyViewModel(): ViewModel() {
      * @param ordinal: Int numero de boton pulsado
      * @return Boolean si coincide TRUE, si no FALSE
      */
-    fun comprobar(ordinal: Int): Boolean {
+    fun comprobar(ordinal: Int) {
+
+        Datos.secuenciaJugador.add(ordinal)
+        val index = Datos.secuenciaJugador.lastIndex
 
         Log.d(TAG_LOG, "comprobamos - Estado: ${estadoLiveData.value}")
-        return if (ordinal == Datos.secuenciaMaquina) {
-            Log.d(TAG_LOG, "es correcto")
-            Datos.victorias.value += 1
-            estadoLiveData.value = Estados.INICIO
-            Log.d(TAG_LOG, "GANAMOS - Estado: ${estadoLiveData.value}")
-            true
-        } else {
-            Log.d(TAG_LOG, "no es correcto - GAME OVER")
-            Datos.derrotas.value += 1
-            // Guardamos las rondas para el record
-            Datos.rondasSuperadas.value = Datos.victorias.value
+        if (Datos.secuenciaJugador[index] != Datos.secuenciaMaquina[index]) {
+            Log.d(TAG_LOG, "Fallo en la posición $index")
 
-            //reseteamos las victorias
+            Datos.derrotas.value ++
+            Datos.rondasSuperadas.value = Datos.victorias.value
             Datos.victorias.value = 0
 
             estadoLiveData.value = Estados.ERROR
-
-            Log.d(TAG_LOG, "GAME OVER - RONDAS SUPERADAS: ${Datos.rondasSuperadas.value}")
-            false
+            Log.d(TAG_LOG, "PERDIMOS - Estado: ${estadoLiveData.value}")
+            return
         }
+
+        if(Datos.secuenciaJugador.size < Datos.secuenciaMaquina.size){
+            Log.d(TAG_LOG,"correcto pero faltan pulsos")
+            return
+        }
+
+        Datos.victorias.value++
+
+        Log.d(TAG_LOG, "Ronda completada. Victorias: ${Datos.victorias.value}")
+
+        crearRandom()
     }
     // Función para que la pantalla de error pueda volver al inicio
     fun reiniciarJuego(){
         Log.d(TAG_LOG, "Reiniciando el juego.")
+
+        Datos.secuenciaMaquina.clear()
+        Datos.secuenciaJugador.clear()
+        Datos.isPrinted.value = false
+
         estadoLiveData.value = Estados.INICIO
     }
 
