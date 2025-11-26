@@ -181,5 +181,6 @@ Esta sección presenta las pruebas de la aplicación "Damian Dice" que demuestra
 </p>
 
 
+nota: actualizado a la ultima versión de Android Studio 2.1
 
   

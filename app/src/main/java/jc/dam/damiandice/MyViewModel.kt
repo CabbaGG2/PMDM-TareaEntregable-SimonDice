@@ -1,0 +1,97 @@
+package jc.dam.damiandice
+
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import kotlin.collections.plusAssign
+
+class MyViewModel(): ViewModel() {
+
+    // etiqueta para logcat
+    private val TAG_LOG = "miDebug"
+
+    // estados del juego
+    // usamos LiveData para que la IU se actualice
+    // patron de diseño observer
+    var estadoLiveData: MutableLiveData<Estados> = MutableLiveData(Estados.INICIO)
+
+    // este va a ser nuestra lista para la secuencia random
+    // usamos mutable, ya que la queremos modificar
+    var _numbers = mutableStateOf(0)
+
+
+
+    // inicializamos variables cuando instanciamos
+    init {
+        // estado inicial
+        Log.d(TAG_LOG, "Inicializamos ViewModel - Estado: ${estadoLiveData.value}")
+    }
+
+    /**
+     * crear entero random
+     */
+    fun crearRandom() {
+        // cambiamos estado, por lo tanto la IU se actualiza
+
+        Datos.secuenciaJugador.clear()
+        Datos.isPrinted.value = false
+
+        estadoLiveData.value = Estados.ESPERANDO
+        _numbers.value = (0..3).random()
+        Datos.secuenciaMaquina.add(_numbers.value)
+        Log.d(TAG_LOG, "creamos random ${_numbers.value} - Estado: ${estadoLiveData.value}")
+        Log.d(TAG_LOG, "Nueva secuencia: ${Datos.secuenciaMaquina}")
+
+        estadoLiveData.value = Estados.GENERANDO
+    }
+
+
+    /**
+     * comprobar si el boton pulsado es el correcto
+     * @param ordinal: Int numero de boton pulsado
+     * @return Boolean si coincide TRUE, si no FALSE
+     */
+    fun comprobar(ordinal: Int) {
+
+        Datos.secuenciaJugador.add(ordinal)
+        val index = Datos.secuenciaJugador.lastIndex
+
+        Log.d(TAG_LOG, "comprobamos - Estado: ${estadoLiveData.value}")
+        if (Datos.secuenciaJugador[index] != Datos.secuenciaMaquina[index]) {
+            Log.d(TAG_LOG, "Fallo en la posición $index")
+
+            Datos.derrotas.value ++
+            Datos.rondasSuperadas.value = Datos.victorias.value
+            Datos.victorias.value = 0
+
+            estadoLiveData.value = Estados.ERROR
+            Log.d(TAG_LOG, "PERDIMOS - Estado: ${estadoLiveData.value}")
+            return
+        }
+
+        if(Datos.secuenciaJugador.size < Datos.secuenciaMaquina.size){
+            Log.d(TAG_LOG,"correcto pero faltan pulsos")
+            return
+        }
+
+        Datos.victorias.value++
+
+        Log.d(TAG_LOG, "Ronda completada. Victorias: ${Datos.victorias.value}")
+
+        crearRandom()
+    }
+    // Función para que la pantalla de error pueda volver al inicio
+    fun reiniciarJuego(){
+        Log.d(TAG_LOG, "Reiniciando el juego.")
+
+        Datos.secuenciaMaquina.clear()
+        Datos.secuenciaJugador.clear()
+        Datos.isPrinted.value = false
+
+        estadoLiveData.value = Estados.INICIO
+    }
+
+
+}
