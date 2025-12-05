@@ -10,19 +10,22 @@ object ControllerPreference: InterfazControlador {
     // definimos la clave del record (guardamos key:value)
     private const val KEY_RECORD = "record"
 
+    private const  val KEY_DATE = "fecha_nuevo_record"
+
     /**
      * Actualiza el record en las preferencias compartidas.
      * @param context Contexto de la aplicación.
      * @param nuevoRecord Nuevo record a guardar.
      */
 
-    override fun actualizarRecord(context: Context, nuevoRecord: Int) {
+    override fun actualizarRecord(context: Context, nuevoRecord: Int, nuevaFecha: String) {
         // Obtenemos las preferencias compartidas
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         // Usamos la extensión KTX edit {} para no bloquear el hilo y aplicar cambios
         // 'put' pone un valor con clave KEY_RECORD y valor nuevoRecord
         sharedPreferences.edit {
             putInt(KEY_RECORD, nuevoRecord)
+            putString(KEY_DATE, nuevaFecha)
         }
     }
 
@@ -36,4 +39,12 @@ object ControllerPreference: InterfazControlador {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return sharedPreferences.getInt(KEY_RECORD, 0)
     }
+
+    //realizar metodo para obtener fecha nuevo record
+    override fun obtenerFechaRecord(context: Context): String {
+        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return sharedPreferences.getString(KEY_DATE, "01/01/1970").toString()
+    }
+
+
 }

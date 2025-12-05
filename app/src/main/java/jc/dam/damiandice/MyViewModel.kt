@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dam.pmdm.preferencias.ControllerPreference
+import java.time.LocalDateTime
 import kotlin.collections.plusAssign
 
 class MyViewModel(application: Application): AndroidViewModel(application) {
@@ -30,7 +31,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
     init {
         // estado inicial
         Log.d(TAG_LOG, "Inicializamos ViewModel - Estado: ${estadoLiveData.value}")
-        Datos.rondasSuperadas.value = ControllerPreference.obtenerRecord(application)
+        RondasSuperadas.record.value = ControllerPreference.obtenerRecord(application)
     }
 
     /**
@@ -67,7 +68,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
             Log.d(TAG_LOG, "Fallo en la posición $index")
 
             Datos.derrotas.value ++
-            Datos.rondasSuperadas.value = Datos.victorias.value
+            RondasSuperadas.record.value = Datos.victorias.value
             //llamamos a esRecord cuando perdamos para verificar si se supero el record
             esRecord(Datos.victorias.value)
             Datos.victorias.value = 0
@@ -102,8 +103,8 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
 
     fun esRecord(posibleRecord: Int) {
         if (posibleRecord > obtenerRecord()) {
-            ControllerPreference.actualizarRecord(getApplication(), posibleRecord)
-            Datos.rondasSuperadas.value = posibleRecord
+            ControllerPreference.actualizarRecord(getApplication(), posibleRecord, LocalDateTime.now().toString())
+            RondasSuperadas.record.value = posibleRecord
             Log.d("_PREF", "Es record")
         } else {
             Log.d("_PREF", "No es record")
@@ -115,9 +116,9 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
      * @return El record actual.
      */
     fun obtenerRecord(): Int {
-        Datos.rondasSuperadas.value = ControllerPreference.obtenerRecord(getApplication())
-        Log.d("_PREF", "Record: ${(Datos.rondasSuperadas.value)}")
-        return Datos.rondasSuperadas.value
+        RondasSuperadas.record.value = ControllerPreference.obtenerRecord(getApplication())
+        Log.d("_PREF", "Record: ${(RondasSuperadas.record.value)}")
+        return RondasSuperadas.record.value
     }
 
 }

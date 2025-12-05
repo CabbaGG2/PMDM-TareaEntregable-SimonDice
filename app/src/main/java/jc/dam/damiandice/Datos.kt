@@ -14,11 +14,13 @@ object Datos {
     val victorias = MutableStateFlow(0)
     var derrotas = MutableStateFlow(0)
 
-    val rondasSuperadas = MutableStateFlow(0)
+    //val rondasSuperadas = MutableStateFlow(0)
 
     val isPrinted = MutableStateFlow(false)
 
 }
+
+
 
 
 /**

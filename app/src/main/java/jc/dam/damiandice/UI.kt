@@ -98,7 +98,7 @@ fun JuegoScreen(miViewModel: MyViewModel) {
 // Observamos las victorias para la ronda actual
     val victorias by Datos.victorias.collectAsState()
     // Observamos el record guardado
-    val rondasSuperadas by Datos.rondasSuperadas.collectAsState()
+    val rondasSuperadas by RondasSuperadas.record.collectAsState()
 
     //guardamos los botones en variables que observamos constantemente
     val context = LocalContext.current
@@ -184,7 +184,7 @@ fun JuegoScreen(miViewModel: MyViewModel) {
 @Composable
 fun GameOverScreen(miViewModel: MyViewModel) {
     // Observamos el puntaje final
-    val puntaje by Datos.rondasSuperadas.collectAsState()
+    val puntaje by RondasSuperadas.record.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
