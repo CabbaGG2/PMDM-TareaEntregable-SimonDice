@@ -184,7 +184,7 @@ fun JuegoScreen(miViewModel: MyViewModel) {
 @Composable
 fun GameOverScreen(miViewModel: MyViewModel) {
     // Observamos el puntaje final
-    val puntaje by RondasSuperadas.record.collectAsState()
+    val puntaje by Datos.victorias.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),

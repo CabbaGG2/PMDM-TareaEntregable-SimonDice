@@ -8,10 +8,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dam.pmdm.preferencias.ControllerPreference
+import jc.dam.damiandice.ControllerSqlite
 import java.time.LocalDateTime
 import kotlin.collections.plusAssign
+import jc.dam.damiandice.Datos
+import jc.dam.damiandice.Estados
+import jc.dam.damiandice.RondasSuperadas
 
-class MyViewModel(application: Application): AndroidViewModel(application) {
+
+class MyViewModel(private val db: ControllerSqlite): ViewModel() {
 
     // etiqueta para logcat
     private val TAG_LOG = "miDebug"
@@ -31,7 +36,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
     init {
         // estado inicial
         Log.d(TAG_LOG, "Inicializamos ViewModel - Estado: ${estadoLiveData.value}")
-        RondasSuperadas.record.value = ControllerPreference.obtenerRecord(application)
+        RondasSuperadas.record.value = obtenerRecord()
     }
 
     /**
@@ -68,12 +73,11 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
             Log.d(TAG_LOG, "Fallo en la posición $index")
 
             Datos.derrotas.value ++
-            RondasSuperadas.record.value = Datos.victorias.value
-            //llamamos a esRecord cuando perdamos para verificar si se supero el record
             esRecord(Datos.victorias.value)
-            Datos.victorias.value = 0
-
+            //llamamos a esRecord cuando perdamos para verificar si se supero el record
+            Log.d(TAG_LOG, "Ronda alcanzada: ${Datos.victorias.value}")
             estadoLiveData.value = Estados.ERROR
+
             Log.d(TAG_LOG, "PERDIMOS - Estado: ${estadoLiveData.value}")
 
             return
@@ -85,7 +89,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
         }
 
         Datos.victorias.value++
-
+        esRecord(Datos.victorias.value)
         Log.d(TAG_LOG, "Ronda completada. Victorias: ${Datos.victorias.value}")
 
         crearRandom()
@@ -97,13 +101,14 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
         Datos.secuenciaMaquina.clear()
         Datos.secuenciaJugador.clear()
         Datos.isPrinted.value = false
+        Datos.victorias.value = 0
 
         estadoLiveData.value = Estados.INICIO
     }
 
     fun esRecord(posibleRecord: Int) {
-        if (posibleRecord > obtenerRecord()) {
-            ControllerPreference.actualizarRecord(getApplication(), posibleRecord, LocalDateTime.now().toString())
+        if (posibleRecord > RondasSuperadas.record.value) {
+            db.insertarPuntuacion(posibleRecord, LocalDateTime.now().toString())
             RondasSuperadas.record.value = posibleRecord
             Log.d("_PREF", "Es record")
         } else {
@@ -116,7 +121,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
      * @return El record actual.
      */
     fun obtenerRecord(): Int {
-        RondasSuperadas.record.value = ControllerPreference.obtenerRecord(getApplication())
+        RondasSuperadas.record.value = db.obtenerRecord()
         Log.d("_PREF", "Record: ${(RondasSuperadas.record.value)}")
         return RondasSuperadas.record.value
     }

@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Inicializamos el ViewModel
-        val miViewModel = MyViewModel(application)
+        val miViewModel = MyViewModel(ControllerSqlite(this))
 
         enableEdgeToEdge()
         setContent {
