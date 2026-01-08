@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dam.pmdm.preferencias.ControllerPreference
 import jc.dam.damiandice.ControllerSqlite
 import java.time.LocalDateTime
@@ -15,7 +16,8 @@ import jc.dam.damiandice.Datos
 import jc.dam.damiandice.Estados
 import jc.dam.damiandice.RondasSuperadas
 import jc.dam.damiandice.db.RecordDB
-
+import kotlinx.coroutines.launch
+import jc.dam.damiandice.db.entity.Record
 
 class MyViewModel(application: Application): AndroidViewModel(application) {
 
@@ -40,7 +42,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
     init {
         // estado inicial
         Log.d(TAG_LOG, "Inicializamos ViewModel - Estado: ${estadoLiveData.value}")
-        RondasSuperadas.record.value = obtenerRecord()
+        actualizarRecordDesdeDB()
     }
 
     /**
@@ -110,24 +112,55 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
         estadoLiveData.value = Estados.INICIO
     }
 
+    /**
+     * Se actualizó el método esRecord para utilizar Room
+     */
     fun esRecord(posibleRecord: Int) {
-        if (posibleRecord > RondasSuperadas.record.value) {
-            db.insertarPuntuacion(posibleRecord, LocalDateTime.now().toString())
-            RondasSuperadas.record.value = posibleRecord
-            Log.d("_PREF", "Es record")
-        } else {
-            Log.d("_PREF", "No es record")
+        //Usamos viewmodelScope porque el DAO tiene funciones 'suspend'
+
+        viewModelScope.launch {
+            val recordActual = recordDao.getRecord()?.score ?: 0
+
+            if (posibleRecord > recordActual) {
+                val nuevoRecord = Record(
+                    score = posibleRecord,
+                    time = LocalDateTime.now().toString(),
+                    timestamp = System.currentTimeMillis()
+                )
+                recordDao.insert(nuevoRecord)
+
+                //metodo antiguo
+                //db.insertarPuntuacion(posibleRecord, LocalDateTime.now().toString())
+                RondasSuperadas.record.value = posibleRecord
+                Log.d("_ROOM", "Es record: $posibleRecord")
+            } else {
+                Log.d("_ROOM", "No es record")
+            }
+        }
+
+    }
+
+    /**
+     * Función auxiliar para cargar el récord al iniciar el ViewModel
+     */
+    private fun actualizarRecordDesdeDB() {
+        viewModelScope.launch {
+            val recordEntity = recordDao.getRecord()
+            val valorRecord = recordEntity?.score ?: 0
+            RondasSuperadas.record.value = valorRecord
+            Log.d("_ROOM", "Record cargado de la BD: $valorRecord")
         }
     }
+
 
     /**
      * Obtiene el record actual.
      * @return El record actual.
      */
-    fun obtenerRecord(): Int {
+    /*fun obtenerRecord(): Int {
         RondasSuperadas.record.value = db.obtenerRecord()
         Log.d("_PREF", "Record: ${(RondasSuperadas.record.value)}")
         return RondasSuperadas.record.value
-    }
+    }*/
 
 }

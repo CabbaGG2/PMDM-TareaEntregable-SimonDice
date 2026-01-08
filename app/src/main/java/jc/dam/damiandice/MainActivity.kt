@@ -12,25 +12,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import jc.dam.damiandice.ui.theme.DamianDiceTheme
-import android.provider.Contacts.Intents.UI
+import androidx.activity.viewModels
 
 class MainActivity : ComponentActivity() {
+    private val miViewModel: MyViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Inicializamos el ViewModel
-        val miViewModel = MyViewModel(ControllerSqlite(this))
 
         enableEdgeToEdge()
         setContent {
-            IU(miViewModel)
+            DamianDiceTheme{
+                IU(miViewModel)
+            }
         }
     }
 }
 
-
-
-/*@Preview(showBackground = true)
-@Composable
+/*
 fun FunPreview() {
     val miViewModel = MyViewModel(application)
     //comentario
