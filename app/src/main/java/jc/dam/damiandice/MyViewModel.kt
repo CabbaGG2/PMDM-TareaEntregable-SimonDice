@@ -14,9 +14,10 @@ import kotlin.collections.plusAssign
 import jc.dam.damiandice.Datos
 import jc.dam.damiandice.Estados
 import jc.dam.damiandice.RondasSuperadas
+import jc.dam.damiandice.db.RecordDB
 
 
-class MyViewModel(private val db: ControllerSqlite): ViewModel() {
+class MyViewModel(application: Application): AndroidViewModel(application) {
 
     // etiqueta para logcat
     private val TAG_LOG = "miDebug"
@@ -25,6 +26,9 @@ class MyViewModel(private val db: ControllerSqlite): ViewModel() {
     // usamos LiveData para que la IU se actualice
     // patron de diseño observer
     var estadoLiveData: MutableLiveData<Estados> = MutableLiveData(Estados.INICIO)
+
+    private val recordDao = RecordDB.getDatabase(application).recordDao()
+
 
     // este va a ser nuestra lista para la secuencia random
     // usamos mutable, ya que la queremos modificar
