@@ -100,6 +100,9 @@ fun JuegoScreen(miViewModel: MyViewModel) {
     // Observamos el record guardado
     val rondasSuperadas by RondasSuperadas.record.collectAsState()
 
+    val nombre by RondasSuperadas.nombre.collectAsState()
+
+
     //guardamos los botones en variables que observamos constantemente
     val context = LocalContext.current
     val redButtonColor = remember { mutableStateOf(Colores.CLASE_ROJO.color) }
@@ -153,6 +156,11 @@ fun JuegoScreen(miViewModel: MyViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
+        Text(
+            text = "Jugador: $nombre",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+        )
         Text(
             text = "Ronda: $victorias  / Record: $rondasSuperadas",
             fontSize = 24.sp,
