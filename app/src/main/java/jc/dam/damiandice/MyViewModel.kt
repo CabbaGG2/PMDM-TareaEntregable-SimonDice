@@ -107,6 +107,21 @@ class MyViewModel(private val db: ControllerSqlite): ViewModel() {
     }
 
     fun esRecord(posibleRecord: Int) {
+        var listaRecords = db.obtenerPuntuaciones()
+
+        Log.d("_SQLITE", "Lista de records: $listaRecords")
+
+        for (i in listaRecords){
+            //En este punto se obtienen los record y si "posibleRecord" esta entre los 10 mayores se hace un logCat
+
+            if (posibleRecord >  i.split(" - ")[0].split(": ")[1].toInt()) {
+                Log.d("_SQLITE", "Record: ${i.split(" - ")[0].split(": ")[1].toInt()}")
+                Log.d("_SQLITE", "Puntuacion: $posibleRecord")
+                Log.d("_SQLITE", "Estas entre los 10 mejores lugares")
+                break
+            }
+        }
+
         if (posibleRecord > RondasSuperadas.record.value) {
             db.insertarPuntuacion(posibleRecord, LocalDateTime.now().toString())
             RondasSuperadas.record.value = posibleRecord
