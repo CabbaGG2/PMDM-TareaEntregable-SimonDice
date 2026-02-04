@@ -7,24 +7,28 @@ tools: ['changes', 'search/codebase', 'edit/editFiles', 'extensions', 'fetch', '
 
 ## Primary Directive
 
-Your goal is to create a new implementation plan file for `${input:PlanPurpose}`. Your output must be machine-readable, deterministic, and structured for autonomous execution by other AI systems or humans.
+Tu objetivo es crear un plan de implementacion para `${input:PlanPurpose}`. Tu resultado debe ser legible, coherente y consistente para herramientas IA y humanos.
 
-## Execution Context
+## Contexto de ejecución
 
-This prompt is designed for AI-to-AI communication and automated processing. All instructions must be interpreted literally and executed systematically without human interpretation or clarification.
+Este prompt esta diseñado para utilizarse de IA a IA para mejorar la comunicación y automatización de las tareas. Todas las instrucciones deben ser interpretadas literalmente y exaustivas sistematicamente hablando.
 
-## Core Requirements
+This prompt is designed for AI-to-AI communication and automated processing.
 
-- Generate implementation plans that are fully executable by AI agents or humans
-- Use deterministic language with zero ambiguity
-- Structure all content for automated parsing and execution
-- Ensure complete self-containment with no external dependencies for understanding
+## Requerimientos base
 
-## Plan Structure Requirements
+- Genera un plan de implementación que sea ejecutable sin problemas por agentes IA y humanos.
+- Usa lenguaje deterministico y sin ambiguedad.
+- Estructura todo el contenido con parseo automatico y ejecución.
+- No utilices dependencia externas al proyecto para mejor comprensión.
 
-Plans must consist of discrete, atomic phases containing executable tasks. Each phase must be independently processable by AI agents or humans without cross-phase dependencies unless explicitly declared.
 
-## Phase Architecture
+## Requerimientos para la estructura del plan
+
+El plan consiste en ser discreto, las fases atómicas deben contener tareas ejecutables, cada fase debe ser procesable por agentes IA o humanos sin dependencias cruzadas.
+
+
+## Arquitectura de las fases
 
 - Each phase must have measurable completion criteria
 - Tasks within phases must be executable in parallel unless dependencies are specified
