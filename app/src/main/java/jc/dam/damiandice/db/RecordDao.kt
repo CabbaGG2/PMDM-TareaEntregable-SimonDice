@@ -16,3 +16,4 @@ interface RecordDao {
     @Query("SELECT * FROM record_table ORDER BY score DESC LIMIT 1") // se obtiene el record más alto
     suspend fun getRecord(): Record?
 }
+

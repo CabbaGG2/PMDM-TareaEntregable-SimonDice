@@ -29,7 +29,7 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
     // patron de diseño observer
     var estadoLiveData: MutableLiveData<Estados> = MutableLiveData(Estados.INICIO)
 
-    private val recordDao = RecordDB.getDatabase(application).recordDao()
+    private val recordDao = RecordDB.getDatabase(application, viewModelScope).recordDao()
 
 
     // este va a ser nuestra lista para la secuencia random
@@ -120,9 +120,11 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
 
         viewModelScope.launch {
             val recordActual = recordDao.getRecord()?.score ?: 0
-
+            Log.d("_ROOM", "Datos de base de datos: ${recordDao.getRecord()}")
+            Log.d("_ROOM", "Nombre de jugador: ${recordDao.getRecord()?.name}")
             if (posibleRecord > recordActual) {
                 val nuevoRecord = Record(
+                    name = "pepe",
                     score = posibleRecord,
                     time = LocalDateTime.now().toString(),
                     timestamp = System.currentTimeMillis()
@@ -148,6 +150,8 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
             val recordEntity = recordDao.getRecord()
             val valorRecord = recordEntity?.score ?: 0
             RondasSuperadas.record.value = valorRecord
+            RondasSuperadas.nombre.value = recordDao.getRecord()?.name.toString()
+            Log.d("_ROOM", "Nombre de jugador: ${recordDao.getRecord()?.name}")
             Log.d("_ROOM", "Record cargado de la BD: $valorRecord")
         }
     }
