@@ -65,4 +65,6 @@ class ControllerSqlite(context: Context) :
             cursor.close()
             return lista
         }
+
+
 }
