@@ -109,7 +109,6 @@ class MyViewModel(private val db: ControllerSqlite): ViewModel() {
     fun esRecord(posibleRecord: Int) {
         var listaRecords = db.obtenerPuntuaciones()
 
-        var puntuacionMasRexcor =
         Log.d("_SQLITE", "Lista de records: $listaRecords")
 
         for (i in listaRecords){
