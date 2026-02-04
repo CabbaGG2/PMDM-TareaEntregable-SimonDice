@@ -53,7 +53,7 @@ class ControllerSqlite(context: Context) :
     fun obtenerPuntuaciones(): List<String> {
             val lista = mutableListOf<String>()
             val db = readableDatabase
-            val cursor = db.rawQuery("SELECT * FROM puntuaciones", null)
+            val cursor = db.rawQuery("SELECT * FROM puntuaciones ORDER BY puntuacion DESC LIMIT 10", null)
 
             if (cursor.moveToFirst()) {
                 do {
